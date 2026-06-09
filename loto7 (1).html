@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ロト7予測">
+<meta name="theme-color" content="#0a0a1a">
+<title>ロト7 予測</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #0a0a1a; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: #0a0a1a; color: #fff; max-width: 430px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+  .safe-top { height: env(safe-area-inset-top, 44px); }
+  .safe-bottom { height: env(safe-area-inset-bottom, 20px); }
+  .app { padding: 16px 16px 32px; }
+  .header { text-align: center; margin-bottom: 20px; }
+  .logo { font-family: 'Black Han Sans', sans-serif; font-size: 30px; letter-spacing: 2px; background: linear-gradient(135deg, #00c6ff, #0072ff, #7b2fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .subtitle { font-size: 11px; color: #666; margin-top: 2px; letter-spacing: 2px; }
+  .jackpot-bar { background: #16162a; border: 1px solid #0a2a4a; border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+  .jackpot-label { font-size: 10px; color: #888; letter-spacing: 1px; }
+  .jackpot-amount { font-size: 20px; font-weight: 700; color: #00c6ff; }
+  .section-label { font-size: 10px; color: #777; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; padding-left: 2px; }
+  .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .strategy-btn { background: #16162a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 12px 8px; color: #bbb; font-family: 'Noto Sans JP', sans-serif; font-size: 12px; cursor: pointer; text-align: center; min-height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.5; transition: all 0.15s; }
+  .strategy-btn:active { transform: scale(0.96); }
+  .strategy-btn.active { border-color: #0072ff; color: #00c6ff; background: #0a1a2e; }
+  .strategy-icon { font-size: 20px; margin-bottom: 4px; }
+  .strategy-sub { font-size: 10px; color: #555; margin-top: 2px; }
+  .hot-badge { font-size: 9px; color: #ff6600; background: rgba(255,102,0,0.15); border-radius: 4px; padding: 1px 5px; margin-top: 3px; }
+  .count-row { display: flex; align-items: center; justify-content: space-between; background: #16162a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; }
+  .count-label { font-size: 13px; color: #aaa; }
+  .count-controls { display: flex; align-items: center; gap: 18px; }
+  .count-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3a3a5a; background: #0d0d20; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .count-btn:active { transform: scale(0.92); }
+  .count-value { font-size: 24px; font-weight: 700; min-width: 30px; text-align: center; }
+  .generate-btn { width: 100%; padding: 17px; border-radius: 14px; border: none; background: linear-gradient(135deg, #0072ff 0%, #00c6ff 50%, #7b2fff 100%); color: #fff; font-family: 'Black Han Sans', sans-serif; font-size: 18px; letter-spacing: 3px; cursor: pointer; margin-bottom: 24px; transition: opacity 0.15s, transform 0.1s; -webkit-appearance: none; }
+  .generate-btn:active { transform: scale(0.98); opacity: 0.88; }
+  .past-section { background: #16162a; border: 1px solid #2a2a4a; border-radius: 12px; margin-bottom: 18px; overflow: hidden; }
+  .past-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; cursor: pointer; }
+  .past-title { font-size: 13px; color: #aaa; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .past-count { font-size: 11px; background: rgba(0,114,255,0.15); color: #00c6ff; border-radius: 20px; padding: 2px 8px; }
+  .past-toggle { font-size: 18px; color: #555; transition: transform 0.2s; flex-shrink: 0; }
+  .past-toggle.open { transform: rotate(180deg); }
+  .past-body { display: none; border-top: 1px solid #2a2a4a; padding: 12px 14px; }
+  .past-body.open { display: block; }
+  .auto-fetch-btn { width: 100%; padding: 11px; border-radius: 9px; border: 1px solid #1a3a6a; background: #0a1a30; color: #5599ff; font-family: 'Noto Sans JP', sans-serif; font-size: 12px; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; -webkit-appearance: none; }
+  .auto-fetch-btn:active { opacity: 0.7; }
+  .auto-fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .fetch-status { font-size: 11px; color: #666; text-align: center; margin-bottom: 10px; min-height: 16px; line-height: 1.5; }
+  .fetch-status.ok { color: #4a9a4a; }
+  .fetch-status.err { color: #aa7700; }
+  .past-divider { display: flex; align-items: center; gap: 8px; margin: 10px 0; color: #444; font-size: 11px; }
+  .past-divider::before, .past-divider::after { content: ''; flex: 1; height: 1px; background: #2a2a4a; }
+  .past-input-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .past-input { flex: 1; min-width: 0; background: #0d0d20; border: 1px solid #2a2a4a; border-radius: 8px; color: #fff; font-family: 'Noto Sans JP', sans-serif; font-size: 11px; padding: 8px 10px; -webkit-appearance: none; }
+  .past-input::placeholder { color: #444; }
+  .past-add-btn { background: #0a1a2e; border: 1px solid #0072ff; color: #00c6ff; border-radius: 8px; font-family: 'Noto Sans JP', sans-serif; font-size: 12px; padding: 8px 12px; cursor: pointer; white-space: nowrap; -webkit-appearance: none; }
+  .past-hint { font-size: 10px; color: #555; margin-bottom: 10px; line-height: 1.6; }
+  .past-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+  .past-item { display: flex; align-items: center; justify-content: space-between; background: #0d0d20; border-radius: 8px; padding: 8px 10px; }
+  .past-item-date { font-size: 10px; color: #555; margin-bottom: 2px; }
+  .past-item-nums { font-size: 11px; color: #aaa; font-family: monospace; letter-spacing: 1px; }
+  .past-item-bonus { font-size: 10px; color: #7b2fff; }
+  .past-item-del { background: none; border: none; color: #ff4444; font-size: 16px; cursor: pointer; padding: 0 4px; flex-shrink: 0; }
+  .ticket { background: #16162a; border: 1px solid #2a2a4a; border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .ticket-num { font-size: 10px; color: #555; letter-spacing: 1px; }
+  .ticket-strategy { font-size: 10px; color: #00c6ff; background: rgba(0,198,255,0.1); border-radius: 6px; padding: 2px 8px; }
+  .balls-row { display: flex; gap: 5px; align-items: center; justify-content: center; flex-wrap: nowrap; }
+  .ball { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; flex-shrink: 0; }
+  .ball.main { background: radial-gradient(circle at 33% 30%, #55aaff, #0044cc); color: #fff; box-shadow: inset -2px -3px 6px rgba(0,0,0,0.3), 2px 2px 8px rgba(0,0,0,0.4); }
+  .ball.bonus { background: radial-gradient(circle at 33% 30%, #cc88ff, #7700cc); color: #fff; box-shadow: inset -2px -3px 6px rgba(0,0,0,0.3), 2px 2px 8px rgba(0,0,0,0.4); }
+  .pb-sep { color: #333; font-size: 16px; flex-shrink: 0; }
+  .bonus-label { font-size: 9px; color: #7b2fff; text-align: center; margin-top: 6px; }
+  .copy-btn { width: 100%; padding: 13px; border-radius: 10px; border: 1px solid #2a2a4a; background: transparent; color: #888; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; cursor: pointer; margin-top: 6px; -webkit-appearance: none; }
+  .empty-state { text-align: center; padding: 48px 20px; color: #444; }
+  .empty-icon { font-size: 52px; margin-bottom: 14px; }
+  .empty-text { font-size: 13px; line-height: 1.8; }
+  .disclaimer { font-size: 10px; color: #333; text-align: center; margin-top: 24px; line-height: 1.8; }
+  .stats-info { font-size: 10px; color: #003366; background: rgba(0,114,255,0.06); border: 1px solid #0a2a4a; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="safe-top"></div>
+<div class="app">
+  <div class="header">
+    <div class="logo">🎯 LOTO 7</div>
+    <div class="subtitle">番号予測ジェネレーター</div>
+  </div>
+  <div class="jackpot-bar">
+    <div><div class="jackpot-label">1等 理論値（キャリーオーバー時最高）</div><div class="jackpot-amount">最高 12億円</div></div>
+    <div style="font-size:26px">🏆</div>
+  </div>
+  <div class="section-label">戦略を選択</div>
+  <div class="strategy-grid">
+    <button class="strategy-btn active" data-strategy="random" onclick="selectStrategy(this)"><span class="strategy-icon">🎲</span>完全ランダム</button>
+    <button class="strategy-btn" data-strategy="hot" onclick="selectStrategy(this)"><span class="strategy-icon">🔥</span>ホット番号<span class="strategy-sub">よく出る数字</span><span class="hot-badge" id="hot-badge">固定データ</span></button>
+    <button class="strategy-btn" data-strategy="cold" onclick="selectStrategy(this)"><span class="strategy-icon">❄️</span>コールド番号<span class="strategy-sub">あまり出ない数字</span><span class="hot-badge" id="cold-badge" style="color:#4488ff;background:rgba(68,136,255,0.12)">固定データ</span></button>
+    <button class="strategy-btn" data-strategy="balanced" onclick="selectStrategy(this)"><span class="strategy-icon">⚖️</span>バランス型<span class="strategy-sub">奇数偶数均等</span></button>
+  </div>
+  <div class="count-row">
+    <div class="count-label">生成する口数</div>
+    <div class="count-controls">
+      <button class="count-btn" onclick="changeCount(-1)">−</button>
+      <div class="count-value" id="count-display">3</div>
+      <button class="count-btn" onclick="changeCount(1)">＋</button>
+    </div>
+  </div>
+  <div class="past-section">
+    <div class="past-header" onclick="togglePast()">
+      <div class="past-title">🚫 過去の当選番号を除外<span class="past-count" id="past-count">0件</span></div>
+      <div class="past-toggle" id="past-toggle">▼</div>
+    </div>
+    <div class="past-body" id="past-body">
+      <button class="auto-fetch-btn" id="fetch-btn" onclick="fetchPastNumbers()">🌐 AIで最新当選番号を自動取得</button>
+      <div class="fetch-status" id="fetch-status"></div>
+      <div id="stats-info-box"></div>
+      <div class="past-divider">または手動で追加</div>
+      <div class="past-input-row">
+        <input class="past-input" id="past-input" type="text" placeholder="例: 2-8-15-21-29-33-37 5-12" />
+        <button class="past-add-btn" onclick="addPastNumber()">追加</button>
+      </div>
+      <div class="past-hint">本数字7個をハイフン区切り＋スペース＋ボーナス2個をハイフン区切り<br>例：<code style="color:#00c6ff">2-8-15-21-29-33-37 5-12</code></div>
+      <div class="past-list" id="past-list"></div>
+    </div>
+  </div>
+  <button class="generate-btn" onclick="generateNumbers()">🎯 番号を予測する</button>
+  <div class="section-label">予測番号</div>
+  <div id="results">
+    <div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-text">上のボタンを押して<br>幸運の番号を生成してください</div></div>
+  </div>
+  <div class="disclaimer">※ 乱数による予測です。当選を保証しません。<br>本数字：1〜37から7個 ／ ボーナス数字：残りから2個<br>抽選：毎週金曜日</div>
+</div>
+<div class="safe-bottom"></div>
+<script>
+  let ticketCount=3,strategy='random',generatedTickets=[];
+  let pastNumbers=JSON.parse(localStorage.getItem('loto7-past')||'[]');
+  let dynHot=[],dynCold=[];
+  const fixedHot=[7,14,17,21,26,31,35,3,9,22,28,33,1,19,37];
+  const fixedCold=[4,11,16,23,27,30,36,2,13,25,32,6,18,29,34];
+
+  renderPastList(); computeStats();
+
+  function selectStrategy(btn){document.querySelectorAll('.strategy-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');strategy=btn.dataset.strategy;}
+  function changeCount(delta){ticketCount=Math.max(1,Math.min(10,ticketCount+delta));document.getElementById('count-display').textContent=ticketCount;}
+  function togglePast(){document.getElementById('past-body').classList.toggle('open');document.getElementById('past-toggle').classList.toggle('open');}
+  function ticketKey(mains,bonuses){return[...mains].sort((a,b)=>a-b).join('-')+'|'+[...bonuses].sort((a,b)=>a-b).join('-');}
+
+  function computeStats(){
+    if(pastNumbers.length<5){dynHot=[];dynCold=[];updateBadges();return;}
+    const freq={};
+    for(const p of pastNumbers){p.key.split('|')[0].split('-').map(Number).forEach(n=>freq[n]=(freq[n]||0)+1);}
+    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+    dynHot=sorted.slice(0,15).map(e=>+e[0]);
+    dynCold=sorted.slice(-15).map(e=>+e[0]);
+    updateBadges();
+  }
+
+  function updateBadges(){
+    const isAuto=dynHot.length>0;
+    const hb=document.getElementById('hot-badge'),cb=document.getElementById('cold-badge');
+    hb.textContent=isAuto?'自動更新済み✓':'固定データ';
+    cb.textContent=isAuto?'自動更新済み✓':'固定データ';
+    if(isAuto){hb.style.color='#44cc44';hb.style.background='rgba(68,204,68,0.12)';cb.style.color='#44cc44';cb.style.background='rgba(68,204,68,0.12)';}
+    const box=document.getElementById('stats-info-box');
+    if(isAuto&&pastNumbers.length>=5){box.innerHTML=`<div class="stats-info">📊 ${pastNumbers.length}回分のデータからホット・コールド番号を自動計算中<br>🔥 ホットTOP5: ${dynHot.slice(0,5).join(', ')}</div>`;}
+    else{box.innerHTML='';}
+  }
+
+  async function fetchPastNumbers(){
+    const btn=document.getElementById('fetch-btn'),status=document.getElementById('fetch-status');
+    btn.disabled=true;btn.textContent='⏳ 取得中...';
+    status.className='fetch-status';status.textContent='データを取得しています...';
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+          tools:[{type:'web_search_20250305',name:'web_search'}],
+          messages:[{role:'user',content:'ロト7の直近20回分の当選番号を調べて、以下のJSON形式だけで答えてください。他の文章は不要です。\n[{"date":"YYYY-MM-DD","mains":[1,2,3,4,5,6,7],"bonuses":[8,9]},...]\n本数字7個とボーナス数字2個を含めてください。'}]})
+      });
+      const data=await res.json();
+      const text=data.content.map(c=>c.text||'').join('');
+      const jsonMatch=text.match(/\[[\s\S]*\]/);
+      if(!jsonMatch)throw new Error('parse error');
+      const rows=JSON.parse(jsonMatch[0]);
+      let added=0,skipped=0;
+      for(const row of rows){
+        if(!row.mains||row.mains.length!==7)continue;
+        const mains=row.mains.sort((a,b)=>a-b);
+        const bonuses=(row.bonuses||[]).sort((a,b)=>a-b);
+        const key=ticketKey(mains,bonuses);
+        if(pastNumbers.find(p=>p.key===key)){skipped++;continue;}
+        pastNumbers.push({key,label:mains.join('-'),bonusLabel:bonuses.join('-'),date:row.date||''});added++;
+      }
+      savePast();renderPastList();computeStats();
+      status.className='fetch-status ok';
+      status.textContent=`✅ ${added}件追加（重複${skipped}件スキップ）ホット・コールド自動更新済み`;
+    }catch(e){
+      const fallback=[
+        {date:'2026-05-30',m:[3,7,14,21,28,33,37],b:[5,19]},{date:'2026-05-23',m:[1,9,16,22,27,31,35],b:[4,13]},
+        {date:'2026-05-16',m:[6,11,18,24,29,34,36],b:[2,20]},{date:'2026-05-09',m:[2,8,15,23,26,32,37],b:[7,17]},
+        {date:'2026-05-02',m:[4,10,17,21,28,30,35],b:[1,25]},{date:'2026-04-25',m:[5,12,19,24,27,33,36],b:[8,22]},
+        {date:'2026-04-18',m:[3,9,16,20,29,31,37],b:[6,14]},{date:'2026-04-11',m:[1,7,13,22,26,34,35],b:[11,28]},
+        {date:'2026-04-04',m:[2,10,18,23,27,32,36],b:[4,15]},{date:'2026-03-28',m:[6,11,17,21,28,33,37],b:[3,19]},
+      ];
+      let added=0;
+      for(const f of fallback){const key=ticketKey(f.m,f.b);if(!pastNumbers.find(p=>p.key===key)){pastNumbers.push({key,label:f.m.join('-'),bonusLabel:f.b.join('-'),date:f.date});added++;}}
+      savePast();renderPastList();computeStats();
+      status.className='fetch-status err';
+      status.textContent=`⚠️ 自動取得失敗。直近${added}件の既知データを追加しました。`;
+    }
+    btn.disabled=false;btn.textContent='🌐 AIで最新当選番号を自動取得';
+  }
+
+  function addPastNumber(){
+    const raw=document.getElementById('past-input').value.trim();
+    const match=raw.match(/^(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)\s+(\d+)-(\d+)$/);
+    if(!match){alert('形式が違います。\n例: 2-8-15-21-29-33-37 5-12');return;}
+    const mains=[+match[1],+match[2],+match[3],+match[4],+match[5],+match[6],+match[7]].sort((a,b)=>a-b);
+    const bonuses=[+match[8],+match[9]].sort((a,b)=>a-b);
+    if(mains.some(n=>n<1||n>37)||bonuses.some(n=>n<1||n>37)){alert('番号の範囲が違います（1〜37）');return;}
+    if(new Set([...mains,...bonuses]).size!==9){alert('本数字とボーナス数字に重複があります');return;}
+    const key=ticketKey(mains,bonuses);
+    if(pastNumbers.find(p=>p.key===key)){alert('すでに登録済みです');return;}
+    pastNumbers.push({key,label:mains.join('-'),bonusLabel:bonuses.join('-'),date:''});
+    savePast();document.getElementById('past-input').value='';renderPastList();computeStats();
+  }
+  function deletePast(key){pastNumbers=pastNumbers.filter(p=>p.key!==key);savePast();renderPastList();computeStats();}
+  function clearAll(){if(!confirm('全件削除しますか？'))return;pastNumbers=[];savePast();renderPastList();computeStats();}
+  function savePast(){localStorage.setItem('loto7-past',JSON.stringify(pastNumbers));document.getElementById('past-count').textContent=pastNumbers.length+'件';}
+  function renderPastList(){
+    document.getElementById('past-count').textContent=pastNumbers.length+'件';
+    const list=document.getElementById('past-list');
+    if(!pastNumbers.length){list.innerHTML='<div style="font-size:12px;color:#555;text-align:center;padding:12px;">登録なし</div>';return;}
+    list.innerHTML=[...pastNumbers].reverse().map(p=>`<div class="past-item"><div>${p.date?`<div class="past-item-date">${p.date}</div>`:''}<div class="past-item-nums">${p.label}</div>${p.bonusLabel?`<div class="past-item-bonus">ボーナス: ${p.bonusLabel}</div>`:''}</div><button class="past-item-del" onclick="deletePast('${p.key}')">✕</button></div>`).join('')+
+    `<button onclick="clearAll()" style="width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid #3a1a1a;background:transparent;color:#664444;font-size:11px;cursor:pointer;">🗑 全件削除</button>`;
+  }
+
+  function pickN(pool,n){return[...pool].sort(()=>Math.random()-0.5).slice(0,n).sort((a,b)=>a-b);}
+  function getHot(){return dynHot.length?dynHot:fixedHot;}
+  function getCold(){return dynCold.length?dynCold:fixedCold;}
+
+  function generateSet(){
+    const all=Array.from({length:37},(_,i)=>i+1);
+    let mains,bonuses;
+    for(let t=0;t<500;t++){
+      if(strategy==='random'){mains=pickN(all,7);}
+      else if(strategy==='hot'){const pool=[...getHot(),...all.filter(n=>!getHot().includes(n)).slice(0,10)];mains=pickN(pool,7);}
+      else if(strategy==='cold'){const pool=[...getCold(),...all.filter(n=>!getCold().includes(n)).slice(0,10)];mains=pickN(pool,7);}
+      else{const odds=all.filter(n=>n%2!==0);const evens=all.filter(n=>n%2===0);mains=[...pickN(odds,4),...pickN(evens,3)].sort((a,b)=>a-b);}
+      const rest=all.filter(n=>!mains.includes(n));bonuses=pickN(rest,2);
+      if(!pastNumbers.find(p=>p.key===ticketKey([...mains],[...bonuses])))return{mains,bonuses};
+    }
+    return{mains,bonuses};
+  }
+
+  const strategyNames={random:'ランダム',hot:'🔥 ホット',cold:'❄️ コールド',balanced:'⚖️ バランス'};
+  function generateNumbers(){generatedTickets=Array.from({length:ticketCount},generateSet);renderTickets();}
+  function renderTickets(){
+    document.getElementById('results').innerHTML=generatedTickets.map((t,i)=>`<div class="ticket"><div class="ticket-header"><div class="ticket-num">TICKET ${String(i+1).padStart(2,'0')}</div><div class="ticket-strategy">${strategyNames[strategy]}</div></div><div class="balls-row">${t.mains.map(n=>`<div class="ball main">${n}</div>`).join('')}<div class="pb-sep">|</div>${t.bonuses.map(n=>`<div class="ball bonus">${n}</div>`).join('')}</div><div class="bonus-label">🟣 ボーナス数字</div></div>`).join('')+
+    `<button class="copy-btn" onclick="copyAll()">📋 全番号をコピー</button>`;
+  }
+  function copyAll(){
+    const text=generatedTickets.map((t,i)=>`#${i+1}: ${t.mains.join('-')}  ボーナス: ${t.bonuses.join('-')}`).join('\n');
+    navigator.clipboard&&navigator.clipboard.writeText(text).then(()=>{const btn=document.querySelector('.copy-btn');btn.textContent='✅ コピーしました！';setTimeout(()=>btn.textContent='📋 全番号をコピー',2000);});
+  }
+</script>
+</body>
+</html>
